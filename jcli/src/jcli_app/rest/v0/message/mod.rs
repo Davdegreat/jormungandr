@@ -67,19 +67,17 @@ fn post_message(file: Option<PathBuf>, addr: HostAddr, debug: DebugFlag) -> Resu
     let msg_bin = hex::decode(&msg_hex)?;
     let url = addr.with_segments(&["v0", "message"])?.into_url();
     let builder = reqwest::Client::new().post(url);
+    print_fragment_id(msg_bin.clone());
     let response = RestApiSender::new(builder, &debug)
-        .with_binary_body(msg_bin.clone())
+        .with_binary_body(msg_bin)
         .send()?;
     response.response().error_for_status_ref()?;
+    Ok(())
+}
 
+fn print_fragment_id(msg_bin: Vec<u8>) {
     match Fragment::deserialize(msg_bin.into_buf()) {
-        Ok(fragment) => {
-            println!("{}", fragment.id());
-            Ok(())
-        }
-        Err(err) => {
-            println!("Error: {}", err);
-            Ok(())
-        }
+        Ok(fragment) => println!("{}", fragment.id()),
+        Err(err) => println!("Error: {}", err),
     }
 }
