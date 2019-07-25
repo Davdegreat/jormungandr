@@ -260,11 +260,15 @@ fn bootstrap(initialized_node: InitializedNode) -> Result<BootstrappedNode, star
 
     let (new_epoch_announcements, new_epoch_notifier) = tokio::sync::mpsc::channel(100);
 
-    let blockchain =
-        start_up::load_legacy_blockchain(block0, storage, new_epoch_announcements, &bootstrap_logger)?;
+    let blockchain = start_up::load_legacy_blockchain(
+        block0,
+        storage,
+        new_epoch_announcements,
+        &bootstrap_logger,
+    )?;
     /*
     let (new_blockchain, branch) =
-        start_up::load_blockchain(block0, storage, new_epoch_announcements, &bootstrap_logger)?;
+        start_up::load_blockchain(block0, storage, new_epoch_announcements)?;
         */
 
     network::bootstrap(&settings.network, blockchain.clone(), &bootstrap_logger);
