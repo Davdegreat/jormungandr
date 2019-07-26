@@ -255,3 +255,16 @@ pub fn get_shutdown(context: State<Context>) -> Result<impl Responder, Error> {
         .stop();
     Ok(HttpResponse::Ok().finish())
 }
+
+pub fn get_stake_pools(context: State<Context>) -> Result<impl Responder, Error> {
+    let blockchain = context.blockchain.lock_read();
+    let stake_pool_ids = blockchain
+        .tip
+        .ledger()
+        .map_err(|_| ErrorInternalServerError("Failed to get blockchain tip ledger"))?
+        .delegation()
+        .stake_pool_ids()
+        .map(|id| id.to_string())
+        .collect::<Vec<_>>();
+    Ok(Json(stake_pool_ids))
+}
